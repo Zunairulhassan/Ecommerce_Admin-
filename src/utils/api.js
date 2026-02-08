@@ -1,5 +1,5 @@
 import axios from 'axios';
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000"; // fallback when env isn't loaded
+const apiUrl = import.meta.env.VITE_API_URL || "https://ecommerce-server-brown.vercel.app/"; // fallback when env isn't loaded
 console.log('[API] VITE_API_URL ->', apiUrl);
 
 export const postData = async (url, formData) => {
