@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import DashBoard from './Pages/DashBoard/dashBoard';
 import Header from './Components/Header/Header';
 import SideBar from './Components/SideBar/SideBar';
-import { useState, createContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Login from './Pages/Login/Login';
 import SignUp from './Pages/SignUp/SignUp';
 import ForgotPassword from './Pages/ForgottonPassword/ForgottonPassword';
@@ -44,7 +44,7 @@ import { Toaster, toast } from 'react-hot-toast'; // Assuming react-hot-toast ba
 import { MyContext } from './MyContext';
 
 
-import { postData, getData } from './utils/api'; // Ensure correct import path
+import { getData } from './utils/api'; // Ensure correct import path
 
 const alertBox = ({ type, msg }) => {
   if (type === "success") toast.success(msg);
