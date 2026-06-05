@@ -36,7 +36,8 @@ const UploadBox = (props) => {
       const res = await uploadData(apiEndPoint, formData);
       setUploading(false);
 
-      const uploadedImages = res?.data?.images || [];
+      // axios response has data property
+      const uploadedImages = res?.data?.images || res?.images || [];
       if (!uploadedImages.length) {
         context?.alertBox?.({
           type: "error",
