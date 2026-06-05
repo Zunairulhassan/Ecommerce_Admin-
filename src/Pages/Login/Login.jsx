@@ -9,9 +9,9 @@ import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import CircularProgress from '@mui/material/CircularProgress';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
+
 import { MyContext } from "../../MyContext";
 import { postData } from "../../utils/api";
-import { getData } from "../../utils/api";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);

@@ -7,6 +7,7 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import { Button } from '@mui/material';
 import { MyContext } from '../../MyContext';
 import { postData } from '../../utils/api';
+import {deleteImages} from '../../utils/api';
 
 const AddCategory = () => {
     const context = useContext(MyContext);
@@ -23,9 +24,45 @@ const AddCategory = () => {
     };
 
     const setPrevoiusFun = (previousArr) => {
-        setPrevoius(previousArr);
+    setPrevoius(previousArr);
+
+    setformfield(prev => ({
+        ...prev,
+        images: previousArr
+    }));
     };
 
+    const removeImage = async (image, index) => {
+    try {
+        const res = await deleteImages(
+            `/api/category/deleteImage?img=${encodeURIComponent(image)}`
+        );
+
+        console.log(res);
+
+        // UI se image remove karo
+        const updatedImages = previous.filter((_, i) => i !== index);
+        setPrevoius(updatedImages);
+
+        setformfield(prev => ({
+            ...prev,
+            images: updatedImages
+        }));
+
+        context?.alertBox?.({
+            type: 'success',
+            msg: 'Image deleted successfully'
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        context?.alertBox?.({
+            type: 'error',
+            msg: 'Failed to delete image'
+        });
+    }
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formfield.name.trim()) {
@@ -83,7 +120,7 @@ const AddCategory = () => {
                                 previous?.length!==0 && previous.map((image, index)=>{
                                     return(
                                     <div className="uploadBoxWrapper relative" key={index}>
-                                        <span className="absolute w-[25px] h-[25px] rounded-full overflow-hidden bg-red-700 top-[-10px] right-[0px] flex items-center justify-center z-50 cursor-pointer"><IoMdClose className="text-white text-[20px]"/></span>
+                                        <span className="absolute w-[25px] h-[25px] rounded-full overflow-hidden bg-red-700 top-[-10px] right-[0px] flex items-center justify-center z-50 cursor-pointer" onClick={()=> removeImage(image, index)}><IoMdClose className="text-white text-[20px]"/></span>
                                         <div className="uploadBox p-0 rounded-md overflow-hidden border border-dashed border-[rgba(0,0,0,0.3)] h-[150px] w-[100%] bg-gray-100 cursor-pointer hover:bg-gray-200 flex items-center justify-center flex-col relative"  >
                                         <LazyLoadImage
                                             className='w-full h-full object-cover'

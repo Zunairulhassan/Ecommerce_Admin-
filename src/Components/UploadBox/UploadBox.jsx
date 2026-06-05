@@ -52,11 +52,11 @@ const UploadBox = (props) => {
         msg: "Image uploaded successfully!",
       });
     } catch (error) {
-      console.error("[UploadBox Error]:", error.response?.data || error.message);
+      console.error(error);
       setUploading(false);
       context?.alertBox?.({
         type: "error",
-        msg: error.response?.data?.message || error.response?.data?.error || "Image upload failed. Please try again.",
+        msg: "Image upload failed. Please try again.",
       });
     }
   };

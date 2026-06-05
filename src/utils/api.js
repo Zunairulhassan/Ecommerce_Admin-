@@ -97,3 +97,31 @@ export const editData = async (url, updatedData) => {
 
   return response;
 };
+
+
+export const deleteImages = async (url, image) => {
+    try {
+        const token = localStorage.getItem("accessToken");
+
+        const base = apiUrl.endsWith('/') 
+            ? apiUrl.slice(0, -1) 
+            : apiUrl;
+
+        const fullUrl = url.startsWith('/')
+            ? base + url
+            : base + '/' + url;
+
+        const response = await axios.delete(fullUrl, {
+            data: image,
+            headers: {
+                Authorization: token ? `Bearer ${token}` : "",
+                "Content-Type": "application/json",
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("[deleteImages] error:", error);
+        throw error;
+    }
+};
