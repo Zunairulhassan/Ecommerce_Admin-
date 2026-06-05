@@ -151,47 +151,65 @@ const ProfilePageComponent = () => {
   let selectedImages = [];
 
   const onChangeFile = async (e, apiEndPoint) => {
-    const formData = new FormData();
+  const formData = new FormData();
 
-    try {
-      setPrevoius([]);
-      const files = e.target.files;
-      setUploading(true);
+  try {
+    const files = e.target.files;
 
-      for (let i = 0; i < files.length; i++) {
-        if (
-          files[i] &&
-          ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(files[i].type)
-        ) {
-          selectedImages.push(files[i]);
-          formData.append("avatar", files[i]);
-        } else {
-          context.alertBox(
-            "error",
-            "Please select a valid image file jpg, png, jpeg, webp"
-          );
-          setUploading(false);
-          return;
-        }
-      }
+    if (!files || files.length === 0) return;
 
-      await uploadData(apiEndPoint, formData).then((res) => {
-        setUploading(false);
-        if (res?.avatar) {
-          setPrevoius([res.avatar]);
-          const updatedUser = { ...userData, avatar: res.avatar };
-          setUserData(updatedUser);
-          localStorage.setItem("userData", JSON.stringify(updatedUser));
-          context.alertBox({ type: "success", msg: "Avatar updated successfully!" });
-        }
+    setUploading(true);
+    setPrevoius([]);
+
+    const file = files[0];
+
+    if (
+      !["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(file.type)
+    ) {
+      context.alertBox({
+        type: "error",
+        msg: "Only jpg, png, jpeg, webp allowed",
       });
-
-
-    } catch (error) {
-      console.log(error);
       setUploading(false);
+      return;
     }
-  };
+
+    formData.append("avatar", file);
+
+    const res = await uploadData(apiEndPoint, formData);
+
+    setUploading(false);
+
+    // 🔥 FIX: correct response handling
+    const avatarUrl = res?.avatar || res?.data?.avatar;
+
+    if (avatarUrl) {
+      setPrevoius([avatarUrl]);
+
+      const updatedUser = {
+        ...userData,
+        avatar: avatarUrl,
+      };
+
+      setUserData(updatedUser);
+
+      localStorage.setItem("userData", JSON.stringify(updatedUser));
+
+      context.alertBox({
+        type: "success",
+        msg: "Avatar updated successfully!",
+      });
+    } else {
+      context.alertBox({
+        type: "error",
+        msg: "Upload failed - no avatar returned",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    setUploading(false);
+  }
+};
 
   // ================= PROFILE UPDATE =================
   const handleSubmit = (e) => {
