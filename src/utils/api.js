@@ -51,28 +51,26 @@ export const getData = async (url) => {
 };
 
 
-export const uploadData = async (url, updatedData) => {
+export const uploadData = async (url, formData ) => {
   const token = localStorage.getItem("accessToken");
 
   const params = {
     headers: {
       Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "multipart/form-data",
     },
   };
 
   const base = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
   const fullUrl = url.startsWith('/') ? base + url : base + '/' + url;
 
-  var response;
-  await axios.put(fullUrl, updatedData, params).then((res) => {
-    console.log(res)
-    response = res
-  }).catch((err) => {
-    console.log(err)
-    response = err
-  });
-
-  return response;
+  try {
+    const response = await axios.post(fullUrl, formData, params);
+    return response;
+  } catch (error) {
+    console.error('[uploadData] error', error);
+    throw error;
+  }
 };
 
 export const editData = async (url, updatedData) => {

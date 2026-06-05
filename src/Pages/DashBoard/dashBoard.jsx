@@ -105,7 +105,7 @@ const DashBoard = () => {
         <>
             <div className="w-full px-5 py-2 bg-[#fff] border border-[rgba(0,0,0,0.1)] flex items-center gap-8 mb-5 justify-between rounded-md">
                 <div className="info">
-                    <h1 className="font-bold text-[35px] leading-10 mb-3">{hour >= 12 ? hour >= 16 ? <h2>Good Morning</h2> : <h2>Good AfterNoon</h2> : <h2>Good Night</h2>}Cameron</h1>
+                    <h1 className="font-bold text-[35px] leading-10 mb-3">{hour >= 12 ? hour >= 16 ? "Good Morning" : "Good AfterNoon" : "Good Night"} Cameron</h1>
                     <p>Here's What happening on your store today. See the statistics at once</p>
                     <br />
                     <Button className="btn-blue !capitalize" onClick={() => context.setIsOpenFullScreen({
