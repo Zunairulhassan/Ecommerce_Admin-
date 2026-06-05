@@ -6,148 +6,179 @@ import { IoMdClose } from 'react-icons/io';
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { Button } from '@mui/material';
 import { MyContext } from '../../MyContext';
-import { postData } from '../../utils/api';
-import {deleteImages} from '../../utils/api';
+import { postData, deleteImages } from '../../utils/api';
 
 const AddCategory = () => {
     const context = useContext(MyContext);
+
     const [formfield, setformfield] = useState({
-        name:"",
-        images:[],
+        name: "",
+        images: [],
     });
+
     const [previous, setPrevoius] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // input change
     const onChangeInput = (e) => {
         const { name, value } = e.target;
-        setformfield({ ...formfield, [name]: value });
+        setformfield(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
-    const setPrevoiusFun = (previousArr) => {
-    setPrevoius(previousArr);
-
-    setformfield(prev => ({
-        ...prev,
-        images: previousArr
-    }));
-    };
-
-    const removeImage = async (image, index) => {
-    try {
-        const res = await deleteImages(
-            `/api/category/deleteImage?img=${encodeURIComponent(image)}`
-        );
-
-        console.log(res);
-
-        // UI se image remove karo
-        const updatedImages = previous.filter((_, i) => i !== index);
-        setPrevoius(updatedImages);
+    // upload callback
+    const setPrevoiusFun = (arr) => {
+        setPrevoius(arr);
 
         setformfield(prev => ({
             ...prev,
-            images: updatedImages
+            images: arr
         }));
-
-        context?.alertBox?.({
-            type: 'success',
-            msg: 'Image deleted successfully'
-        });
-
-    } catch (error) {
-        console.error(error);
-
-        context?.alertBox?.({
-            type: 'error',
-            msg: 'Failed to delete image'
-        });
-    }
     };
+
+    // delete image
+    const removeImage = async (image, index) => {
+        try {
+            await deleteImages("/api/category/deleteImage", image);
+
+            const updated = previous.filter((_, i) => i !== index);
+
+            setPrevoius(updated);
+
+            setformfield(prev => ({
+                ...prev,
+                images: updated
+            }));
+
+            context?.alertBox?.({
+                type: "success",
+                msg: "Image deleted successfully"
+            });
+
+        } catch (err) {
+            console.error(err);
+
+            context?.alertBox?.({
+                type: "error",
+                msg: "Failed to delete image"
+            });
+        }
+    };
+
+    // submit
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!formfield.name.trim()) {
-            context?.alertBox?.({ type: 'error', msg: 'Category name is required.' });
-            return;
+            return context?.alertBox?.({
+                type: "error",
+                msg: "Category name is required"
+            });
         }
 
         if (!previous.length) {
-            context?.alertBox?.({ type: 'error', msg: 'Please upload at least one image.' });
-            return;
+            return context?.alertBox?.({
+                type: "error",
+                msg: "Upload at least one image"
+            });
         }
 
         setIsSubmitting(true);
-        try {
-            const payload = {
-                name: formfield.name,
-                images: previous,
-            };
 
-            const res = await postData('/api/category/create', payload);
+        try {
+            const res = await postData("/api/category/create", {
+                name: formfield.name,
+                images: previous
+            });
+
             setIsSubmitting(false);
 
             if (res?.success) {
-                context?.alertBox?.({ type: 'success', msg: res.message || 'Category created successfully!' });
-                setformfield({ name: '', images: [] });
+                context?.alertBox?.({
+                    type: "success",
+                    msg: res.message
+                });
+
+                setformfield({ name: "", images: [] });
                 setPrevoius([]);
             } else {
-                context?.alertBox?.({ type: 'error', msg: res?.message || 'Category creation failed.' });
+                context?.alertBox?.({
+                    type: "error",
+                    msg: res?.message || "Failed"
+                });
             }
+
         } catch (error) {
             setIsSubmitting(false);
             console.error(error);
-            context?.alertBox?.({ type: 'error', msg: 'Unable to create category. Please try again.' });
         }
     };
 
-    return(
-        <>
-            <section className="p-5 bg-gray-50">
-                <form onSubmit={handleSubmit} className="form p-8 py-3" >
-                    <div className="scroll max-h-[70vh] overflow-y-scroll">
-                        <div className="grid grid-cols-1 mb-3">
-                        <div className="col w-[30%]">
-                            <h3 className="mb-1 text-black text-[14px] font-[500]">Category Name</h3>
-                            <input type="text" name="name" value={formfield.name} className="w-full h-[40px] bg-[#fafafa] border-2 border-[rgba(0,0,0,0.1)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm" 
-                            onChange={onChangeInput}/>
+    return (
+        <section className="p-5 bg-gray-50">
+            <form onSubmit={handleSubmit} className="form p-8 py-3">
+
+                {/* NAME */}
+                <div className="w-[30%] mb-3">
+                    <h3 className="text-sm font-medium">Category Name</h3>
+
+                    <input
+                        type="text"
+                        name="name"
+                        value={formfield.name}
+                        onChange={onChangeInput}
+                        className="w-full h-[40px] border p-2"
+                        autoComplete="off"
+                    />
+                </div>
+
+                {/* IMAGES */}
+                <h3 className="mb-2 font-medium">Upload Images</h3>
+
+                <div className="grid grid-cols-7 gap-4">
+
+                    {previous.map((image, index) => (
+                        <div key={index} className="relative">
+
+                            <span
+                                onClick={() => removeImage(image, index)}
+                                className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full cursor-pointer"
+                            >
+                                <IoMdClose />
+                            </span>
+
+                            <LazyLoadImage
+                                src={image}
+                                className="w-full h-[120px] object-cover"
+                            />
                         </div>
-                        </div>  
-                        <br/>
-                            <h3 className="mb-1 text-black text-[14px] font-[500]">Upload Image</h3>
-                       
-                       
-                        <div className="grid grid-cols-7 gap-4">
-                            {
-                                previous?.length!==0 && previous.map((image, index)=>{
-                                    return(
-                                    <div className="uploadBoxWrapper relative" key={index}>
-                                        <span className="absolute w-[25px] h-[25px] rounded-full overflow-hidden bg-red-700 top-[-10px] right-[0px] flex items-center justify-center z-50 cursor-pointer" onClick={()=> removeImage(image, index)}><IoMdClose className="text-white text-[20px]"/></span>
-                                        <div className="uploadBox p-0 rounded-md overflow-hidden border border-dashed border-[rgba(0,0,0,0.3)] h-[150px] w-[100%] bg-gray-100 cursor-pointer hover:bg-gray-200 flex items-center justify-center flex-col relative"  >
-                                        <LazyLoadImage
-                                            className='w-full h-full object-cover'
-                                            effect="blur"
-                                            alt={"images"}
-                                            wrapperProps={{
-                                                // If you need to, you can tweak the effect transition using the wrapper style.
-                                                style: {transitionDelay: "1s"},
-                                            }}
-                                            src={image} // use normal <img> attributes as props
-                                            />
-                                        </div>
-                                    </div>
-                                    )
-                                })
-                            }   
-                            <UploadBox multiple={true} name="images" url="api/category/upload" setPrevoiusFun={setPrevoiusFun}/>
-                        </div>
-                    </div>
-                    <hr/>
-                    <br/>
-                    <div className="w-[250px]">
-                        <Button type="submit" disabled={isSubmitting} className="btn-blue btn-lg w-full"><FaCloudUploadAlt className='text-[22px] mr-3'/>{isSubmitting ? 'Saving...' : 'Publish and View'}</Button>
-                    </div>
-                </form>
-            </section>
-        </>
-    )
-}
+                    ))}
+
+                    <UploadBox
+                        multiple
+                        name="images"
+                        url="/api/category/upload"
+                        setPrevoiusFun={setPrevoiusFun}
+                    />
+                </div>
+
+                {/* SUBMIT */}
+                <div className="mt-5 w-[250px]">
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-blue-600 text-white"
+                    >
+                        <FaCloudUploadAlt />
+                        {isSubmitting ? "Saving..." : "Publish"}
+                    </Button>
+                </div>
+
+            </form>
+        </section>
+    );
+};
+
 export default AddCategory;

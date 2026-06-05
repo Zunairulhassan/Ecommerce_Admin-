@@ -1,6 +1,7 @@
 import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL || "https://ecommerce-server-brown.vercel.app/"; // fallback when env isn't loaded
 console.log('[API] VITE_API_URL ->', apiUrl);
+const getToken = () => localStorage.getItem("accessToken");
 
 export const postData = async (url, formData) => {
   try {
@@ -100,28 +101,16 @@ export const editData = async (url, updatedData) => {
 
 
 export const deleteImages = async (url, image) => {
-    try {
-        const token = localStorage.getItem("accessToken");
+    const fullUrl = url.startsWith("/")
+        ? apiUrl + url
+        : apiUrl + "/" + url;
 
-        const base = apiUrl.endsWith('/') 
-            ? apiUrl.slice(0, -1) 
-            : apiUrl;
+    const res = await axios.delete(fullUrl, {
+        data: { image },
+        headers: {
+            Authorization: getToken() ? `Bearer ${getToken()}` : "",
+        },
+    });
 
-        const fullUrl = url.startsWith('/')
-            ? base + url
-            : base + '/' + url;
-
-        const response = await axios.delete(fullUrl, {
-            data: image,
-            headers: {
-                Authorization: token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json",
-            },
-        });
-
-        return response.data;
-    } catch (error) {
-        console.error("[deleteImages] error:", error);
-        throw error;
-    }
+    return res.data;
 };
