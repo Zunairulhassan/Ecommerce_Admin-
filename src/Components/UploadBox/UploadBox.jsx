@@ -6,7 +6,6 @@ import { uploadData } from "../../utils/api";
 const UploadBox = (props) => {
   const context = useContext(MyContext);
   const [uploading, setUploading] = useState(false);
-  const [previous, setPrevoius] = useState([]);
 
   const onChangeFile = async (e, apiEndPoint) => {
     try {
@@ -31,7 +30,6 @@ const UploadBox = (props) => {
       });
 
       setUploading(true);
-      setPrevoius([]);
 
       const res = await uploadData(apiEndPoint, formData);
       setUploading(false);
@@ -46,8 +44,8 @@ const UploadBox = (props) => {
         return;
       }
 
+      // Pass new images to parent callback - parent handles accumulation
       props?.setPrevoiusFun?.(uploadedImages);
-      setPrevoius(uploadedImages);
       context?.alertBox?.({
         type: "success",
         msg: "Image uploaded successfully!",

@@ -29,12 +29,14 @@ const AddCategory = () => {
     };
 
     // upload callback
-    const setPrevoiusFun = (arr) => {
-        setPrevoius(arr);
+    const setPrevoiusFun = (newImages) => {
+        // Accumulate new images with existing ones
+        const combinedImages = [...previous, ...newImages];
+        setPrevoius(combinedImages);
 
         setformfield(prev => ({
             ...prev,
-            images: arr
+            images: combinedImages
         }));
     };
 
@@ -139,19 +141,22 @@ const AddCategory = () => {
 
                 <div className="grid grid-cols-7 gap-4">
 
-                    {previous.map((image, index) => (
-                        <div key={index} className="relative">
+                    {previous && previous.length > 0 && previous.map((image, index) => (
+                        <div key={`image-${index}`} className="relative group">
 
                             <span
                                 onClick={() => removeImage(image, index)}
-                                className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full cursor-pointer"
+                                className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full cursor-pointer hover:bg-red-700 z-10"
+                                title="Delete image"
                             >
-                                <IoMdClose />
+                                <IoMdClose size={18} />
                             </span>
 
                             <LazyLoadImage
                                 src={image}
-                                className="w-full h-[120px] object-cover"
+                                alt={`Category image ${index + 1}`}
+                                className="w-full h-[120px] object-cover rounded border"
+                                effect="blur"
                             />
                         </div>
                     ))}

@@ -58,7 +58,7 @@ export const uploadData = async (url, formData ) => {
   const params = {
     headers: {
       Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "multipart/form-data",
+      // Don't set Content-Type for FormData - axios will handle it with proper boundary
     },
   };
 
