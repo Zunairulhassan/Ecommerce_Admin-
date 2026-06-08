@@ -94,7 +94,7 @@ const AddCategory = () => {
                 name: formfield.name,
                 images: previous
             });
-
+            console.log("UPLOAD RESPONSE:", res);
             setIsSubmitting(false);
 
             if (res?.success) {
