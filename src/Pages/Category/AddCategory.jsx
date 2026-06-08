@@ -30,8 +30,10 @@ const AddCategory = () => {
 
     // upload callback
     const setPrevoiusFun = (newImages) => {
+        console.log('[AddCategory] New images received:', newImages);
         // Accumulate new images with existing ones
         const combinedImages = [...previous, ...newImages];
+        console.log('[AddCategory] Combined images:', combinedImages);
         setPrevoius(combinedImages);
 
         setformfield(prev => ({
@@ -137,25 +139,25 @@ const AddCategory = () => {
                 </div>
 
                 {/* IMAGES */}
-                <h3 className="mb-2 font-medium">Upload Images</h3>
+                <h3 className="mb-2 font-medium">Upload Images ({previous.length})</h3>
 
-                <div className="grid grid-cols-7 gap-4">
+                <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
 
                     {previous && previous.length > 0 && previous.map((image, index) => (
-                        <div key={`image-${index}`} className="relative group">
+                        <div key={`image-${index}`} className="relative group rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition">
 
                             <span
                                 onClick={() => removeImage(image, index)}
-                                className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full cursor-pointer hover:bg-red-700 z-10"
+                                className="absolute top-1 right-1 bg-red-600 text-white p-2 rounded-full cursor-pointer hover:bg-red-700 z-10 transition shadow-lg"
                                 title="Delete image"
                             >
-                                <IoMdClose size={18} />
+                                <IoMdClose size={16} />
                             </span>
 
                             <LazyLoadImage
                                 src={image}
                                 alt={`Category image ${index + 1}`}
-                                className="w-full h-[120px] object-cover rounded border"
+                                className="w-full h-[120px] object-cover"
                                 effect="blur"
                             />
                         </div>

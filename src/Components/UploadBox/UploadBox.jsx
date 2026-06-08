@@ -34,12 +34,17 @@ const UploadBox = (props) => {
       const res = await uploadData(apiEndPoint, formData);
       setUploading(false);
 
-      // axios response has data property
-      const uploadedImages = res?.data?.images || res?.images || [];
+      console.log('[UploadBox] Response:', res);
+
+      // ✅ API returns: { data: { data: { images: [...] } } }
+      const uploadedImages = res?.data?.data?.images || res?.data?.images || res?.images || [];
+      
+      console.log('[UploadBox] Extracted images:', uploadedImages);
+      
       if (!uploadedImages.length) {
         context?.alertBox?.({
           type: "error",
-          msg: res?.data?.message || "Upload failed. No images returned.",
+          msg: res?.data?.message || res?.data?.data?.message || "Upload failed. No images returned.",
         });
         return;
       }
