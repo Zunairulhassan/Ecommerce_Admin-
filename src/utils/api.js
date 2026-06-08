@@ -3,6 +3,21 @@ const apiUrl = import.meta.env.VITE_API_URL || "https://ecommerce-server-brown.v
 console.log('[API] VITE_API_URL ->', apiUrl);
 const getToken = () => localStorage.getItem("accessToken");
 
+const buildAuthHeaders = () => {
+  const token = getToken();
+  const headers = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+};
+
+const buildRequestConfig = (extraHeaders = {}) => ({
+  headers: {
+    ...buildAuthHeaders(),
+    ...extraHeaders,
+  },
+  withCredentials: true,
+});
+
 export const postData = async (url, formData) => {
   try {
     const token = localStorage.getItem("accessToken");
@@ -10,12 +25,15 @@ export const postData = async (url, formData) => {
     const fullUrl = url.startsWith('/') ? base + url : base + '/' + url;
     console.log('[postData] POST ->', fullUrl);
 
+    const headers = {
+      "Content-Type": "application/json",
+      ...buildAuthHeaders(),
+    };
+
     const response = await fetch(fullUrl, {
       method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token ? `Bearer ${token}` : "",
-      },
+      credentials: "include",
+      headers,
       body: JSON.stringify(formData)
     });
 
@@ -32,18 +50,10 @@ export const postData = async (url, formData) => {
 
 export const getData = async (url) => {
   try {
-    const token = localStorage.getItem("accessToken");
-    const params = {
-      headers: {
-        Authorization: token ? `Bearer ${token}` : "",
-        "Content-Type": "application/json",
-      },
-    }
-
     const base = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
     const fullUrl = url.startsWith('/') ? base + url : base + '/' + url;
 
-    const { data } = await axios.get(fullUrl, params);
+    const { data } = await axios.get(fullUrl, buildRequestConfig({ "Content-Type": "application/json" }));
     return data;
   } catch (error) {
     console.error("GET DATA ERROR:", error);
@@ -53,20 +63,11 @@ export const getData = async (url) => {
 
 
 export const uploadData = async (url, formData ) => {
-  const token = localStorage.getItem("accessToken");
-
-  const params = {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      // Don't set Content-Type for FormData - axios will handle it with proper boundary
-    },
-  };
-
   const base = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
   const fullUrl = url.startsWith('/') ? base + url : base + '/' + url;
 
   try {
-    const response = await axios.post(fullUrl, formData, params);
+    const response = await axios.post(fullUrl, formData, buildRequestConfig());
     return response;
   } catch (error) {
     console.error('[uploadData] error', error);
@@ -75,41 +76,31 @@ export const uploadData = async (url, formData ) => {
 };
 
 export const editData = async (url, updatedData) => {
-  const token = localStorage.getItem("accessToken");
-
-  const params = {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    },
-  };
-
   const base = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
   const fullUrl = url.startsWith('/') ? base + url : base + '/' + url;
 
-  var response;
-  await axios.put(fullUrl, updatedData, params).then((res) => {
-    console.log(res)
-    response = res
-  }).catch((err) => {
-    console.log(err)
-    response = err
-  });
+  let response;
+  await axios.put(fullUrl, updatedData, buildRequestConfig({ "Content-Type": "application/json" }))
+    .then((res) => {
+      console.log(res);
+      response = res;
+    })
+    .catch((err) => {
+      console.log(err);
+      response = err;
+    });
 
   return response;
 };
 
 
 export const deleteImages = async (url, image) => {
-    const fullUrl = url.startsWith("/")
-        ? apiUrl + url
-        : apiUrl + "/" + url;
+    const base = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+    const fullUrl = url.startsWith("/") ? base + url : base + "/" + url;
 
     const res = await axios.delete(fullUrl, {
         data: { image },
-        headers: {
-            Authorization: getToken() ? `Bearer ${getToken()}` : "",
-        },
+        ...buildRequestConfig(),
     });
 
     return res.data;

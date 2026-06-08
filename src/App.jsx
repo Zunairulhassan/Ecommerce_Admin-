@@ -83,15 +83,17 @@ function App() {
         if (res?.success) {
           setUserData(res.data);
           localStorage.setItem("userData", JSON.stringify(res.data));
-          if (res?.response?.data?.error === true) {
-            if (res?.response?.data?.message === "you have not login") {
-              localStorage.removeItem("accessToken");
-              localStorage.removeItem("refreshToken");
-              window.location.href = "/login";
-            }
-          }
         }
-      }).catch(err => console.error("Initial fetch error:", err));
+      }).catch(err => {
+        console.error("Initial fetch error:", err);
+        if (err?.response?.status === 401) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("userData");
+          setIsLogin(false);
+          window.location.href = "/login";
+        }
+      });
 
     } else {
       setIsLogin(false);

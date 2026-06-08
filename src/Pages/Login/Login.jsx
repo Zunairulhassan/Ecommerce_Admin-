@@ -11,7 +11,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { MyContext } from "../../MyContext";
-import { postData } from "../../utils/api";
+import { postData, getData } from "../../utils/api";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
